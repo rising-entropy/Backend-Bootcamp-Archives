@@ -25,9 +25,35 @@ app.get("/user/:id", (req, res)=>{
     res.json({"message": "User does not exist"})
 });
 
+const getRandomIndicesArray = (countOfList, requiredCount) => {
+    let requiredIndices = [];
+    while(true)
+    {
+        let aRandomNumber = Math.floor(Math.random() * countOfList)+1;
+        if(!requiredIndices.includes(aRandomNumber))
+        {
+            requiredIndices.push(aRandomNumber);
+        }
+        if(requiredIndices.length == requiredCount)
+        {
+            return requiredIndices;
+        }
+    }
+}
+
 // get random users - count in URL
 app.get("/random-users/:count", (req, res)=>{
+    let theCount = req.params.count;
+    let theListCount = theData.length;
+    let theRandomIndices = getRandomIndicesArray(theListCount, theCount);
     
+    let requiredObjects = []
+    for(let i=0; i<theRandomIndices.length; i++)
+    {
+        requiredObjects = [...requiredObjects, theData[theRandomIndices[i]]]
+        //requiredObjects.push(theData[theRandomIndices[i]]);
+    }
+    res.json(requiredObjects)
 });
 
 

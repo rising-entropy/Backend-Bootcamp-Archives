@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import json
+import random
 app = FastAPI()
 
 f = open('data.json')
@@ -23,8 +24,20 @@ def particularUser(id: int):
             return d
     return {"message": "User does not exist"}
 
+def getRandomIndicesArray(countOfList, requiredCount):
+    requiredIndices = []
+    while True:
+        r1 = random.randint(1, countOfList)
+        if r1 not in requiredIndices:
+            requiredIndices.append(r1)
+        if len(requiredIndices) == requiredCount:
+            return requiredIndices
 
 # get random users - count in URL
 @app.get("/random-users/{count}")
 def randomUsers(count: int):
-    return {"message": "User does not exist"}
+    theRandomIndices = getRandomIndicesArray(len(theData), count)
+    requiredObjects = []
+    for i in theRandomIndices:
+        requiredObjects.append(theData[i])
+    return requiredObjects
