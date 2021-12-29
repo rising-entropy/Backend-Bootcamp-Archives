@@ -3,6 +3,8 @@ const app = express();
 
 const theData = require("./data.json");
 
+app.use(express.json());
+
 app.get("/", (req, res)=>{
     res.json({message: "Hello"})
 });
@@ -57,11 +59,44 @@ app.get("/random-users/:count", (req, res)=>{
 });
 
 // post - create a new user
+app.post("/create-user", (req, res)=>{
+    let theNewUser = req.body;
+    theNewUser["id"] = theData.length+1;
+    theData.push(theNewUser);
+    res.json(theNewUser);
+});
 
 // put - update a user (getting its ID)
+app.put("/user/:id", (req, res)=>{
+    let id = parseInt(req.params.id);
+    let theBody = req.body;
+    for(let i=0; i<theData.length; i++)
+    {
+        if(theData[i].id === id)
+        {
+            let theUpdatedUser = theBody;
+            theUpdatedUser["id"] = id;
+            theData[i] = theUpdatedUser;
+            res.json(theUpdatedUser);
+        }
+    }
+    res.json({"message": "User does not exist"});
+});
 
 // delete - delete a user (getting its ID)
-
+app.delete("/user/:id", (req, res)=>{
+    let id = parseInt(req.params.id);
+    theData.filter((ele, index)=>{
+        if(ele.id === id)
+        {
+            theData.splice(index, 1);
+            res.json({
+                message: "User deleted successfully."
+            });
+        }
+    });
+    res.json({"message": "User does not exist"});
+})
 
 app.listen(3000, ()=>{
     console.log("Server Started");
