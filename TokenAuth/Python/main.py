@@ -1,11 +1,17 @@
 from fastapi import FastAPI
 import json
 import random
+import jwt
 app = FastAPI()
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 f = open('data.json')
 theData = json.load(f)
+
+SECRET = "Aman"
+ALGORITHM = 'HS256'
+EXPIRY = 600
 
 
 @app.get("/") # declare a route, type (GET, POST)
@@ -86,6 +92,29 @@ def deleteUser(id: int):
 # Login API - Validate the User
 # If authenticated - Return a Token
 
+class Login(BaseModel):
+    email: str
+    password: str
+
+@app.post("/login")
+def loginUser(body: Login):
+    thatEmail = body.email
+    thatPassword = body.password
+    for i in theData:
+        if i["email"] == thatEmail:
+            if i["password"] == thatPassword:
+                payload = {
+                    "exp": datetime.utcnow() + timedelta(seconds = EXPIRY),
+                    "data": thatEmail
+                }
+                token = jwt.encode(payload,SECRET, ALGORITHM)
+                return {
+                    "message": "Login Successful",
+                    "email": i["email"],
+                    "token": token
+                }
+            return {"message": "Wrong Password"}
+    return {"message": "Email does not exist"}
 
 # Check Token API
 # Return True if valid else False

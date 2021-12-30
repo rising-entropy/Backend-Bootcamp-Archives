@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
-
+const jwt = require("jsonwebtoken");
 const theData = require("./data.json");
+const SECRET = "Aman";
+
 
 app.use(express.json());
 
@@ -105,7 +107,37 @@ app.listen(3000, ()=>{
 
 // Login API - Validate the User
 // If authenticated - Return a Token
+app.post("/login", (req, res)=>{
+    let body = req.body;
+    let thatEmail = body["email"]
+    let thatPassword = body["password"];
+    for(let i=0; i<theData.length; i++)
+    {
+        if(thatEmail === theData[i].email)
+        {
+            if(thatPassword === theData[i].password)
+            {
+                //successful
 
+                //create a jwt token
+                const token = jwt.sign({
+                    exp: 600,
+                    data: theData[i].email
+                }, SECRET);
+                res.json(
+                    {
+                        "message": "Login Successful",
+                        "email": theData[i].email,
+                        "token": token
+                    }
+                );
+
+            }
+            res.json({"message": "Wrong Password"});
+        }
+    }
+    res.json({"message": "Email does not exist"});
+})
 
 // Check Token API
 // Return True if valid else False
